@@ -1,0 +1,23 @@
+# Velociraptor Configuration
+# https://velociraptor.run/docs/configuration/
+
+imap: import_map.json
+
+scripts:
+  test:
+    cmd: deno test
+    desc: テスト
+
+  test-watch:
+    cmd: deno test
+    watch: true
+    desc: ファイルが変更されたらテスト再実行
+
+  exec:
+    cmd: deno run
+    desc: ファイル実行 (vr exec *.ts)
+
+  exec-watch:
+    cmd: deno run
+    watch: true
+    desc: ファイルが変更されたらファイル再実行 (vr exec *.ts)
