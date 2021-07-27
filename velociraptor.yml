@@ -1,7 +1,11 @@
 # Velociraptor Configuration
 # https://velociraptor.run/docs/configuration/
 
-imap: import_map.json
+unstable: true
+allow:
+  write: true
+  read: true
+  net: true
 
 scripts:
   test:
