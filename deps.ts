@@ -10,7 +10,11 @@ export {
   exists,
 } from "https://deno.land/std@0.103.0/fs/mod.ts";
 
-export { dirname, join } from "https://deno.land/std@0.103.0/path/mod.ts";
+export {
+  dirname,
+  join,
+  normalize,
+} from "https://deno.land/std@0.103.0/path/mod.ts";
 
 export {
   sleepRandomAmountOfSeconds as delay,
