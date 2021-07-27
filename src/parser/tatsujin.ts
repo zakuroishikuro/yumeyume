@@ -1,13 +1,9 @@
-import { delay, DOMParser, HTMLDocument } from "../../deps.ts";
-import { fetchData, isCached } from "../fetch_data.ts";
-import { toInt } from "../toInt.ts";
+import { DOMParser, HTMLDocument } from "../../deps.ts";
+import { fetchData } from "../fetch_data.ts";
+import { getItemProps, toInt } from "../utils.ts";
 
-const SITE_NAME = "達人出版会";
+//const SITE_NAME = "達人出版会";
 const SITE_URL = "https://tatsu-zine.com/books";
-
-function print(message: string) {
-  console.log(`[${SITE_NAME}] ${message}`);
-}
 
 type SummaryItem = {
   url: string;
@@ -40,11 +36,7 @@ function getItems(doc: HTMLDocument) {
     const pdf = e.querySelector("[src*=pdf]") != null;
     const epub = e.querySelector("[src*=epub]") != null;
 
-    const priceElement = e.querySelector("span[itemprop=price]");
-    const descriptionElement = e.querySelector("p[itemprop=description]");
-
-    const price = priceElement?.textContent.replace(/\D/g, "");
-    const description = descriptionElement?.textContent.trim();
+    const { price, description } = getItemProps(e);
 
     return {
       url,
@@ -53,7 +45,7 @@ function getItems(doc: HTMLDocument) {
       publisher,
       pdf,
       epub,
-      price,
+      price: toInt(price),
       description,
     } as SummaryItem;
   }).filter((item) => item != null) as SummaryItem[];
@@ -63,7 +55,6 @@ async function scrape() {
   const parser = new DOMParser();
 
   const url = new URL(SITE_URL);
-  print(`loading... ${url}`);
   const html = await fetchData(url);
   const doc = parser.parseFromString(html, "text/html")!;
 
@@ -72,12 +63,11 @@ async function scrape() {
 }
 
 function getDetail(doc: HTMLDocument) {
-  const datePublished = doc.querySelector("span[itemprop=datePublished]")!;
-  const pages = doc.querySelector("span[itemprop=numberOfPages]")!;
+  const { datePublished, numberOfPages } = getItemProps(doc.body);
 
   return {
-    released: datePublished.textContent.replace(/-/g, "/"),
-    pages: toInt(pages.textContent.replace(/\D+/g, "")),
+    released: datePublished?.replace(/-/g, "/"),
+    pages: toInt(numberOfPages?.replace(/\D+/g, "")),
   };
 }
 
@@ -87,11 +77,7 @@ async function scrapaDetails(items: SummaryItem[]) {
   const detailedItems: DetailedItem[] = [];
   for (const item of items) {
     const url = new URL(item.url);
-    print(`loading... ${url}`);
     const html = await fetchData(url);
-    if (!isCached(url)) {
-      await delay(5, 10);
-    }
     const doc = parser.parseFromString(html, "text/html")!;
     const detail = getDetail(doc);
     detailedItems.push({

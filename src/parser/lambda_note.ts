@@ -1,13 +1,9 @@
 import { delay, DOMParser, HTMLDocument } from "../../deps.ts";
 import { fetchData, isCached } from "../fetch_data.ts";
-import { toInt } from "../toInt.ts";
+import { toInt } from "../utils.ts";
 
-const SITE_NAME = "ラムダノート";
+//const SITE_NAME = "ラムダノート";
 const SITE_URL = "https://www.lambdanote.com/collections/frontpage";
-
-function print(message: string) {
-  console.log(`[${SITE_NAME}] ${message}`);
-}
 
 type SummaryItem = {
   title: string;
@@ -45,7 +41,6 @@ async function scrape() {
   const result = [];
   let nextURL: string | undefined = SITE_URL;
   while (nextURL != null) {
-    print(`loading... ${nextURL}`);
     const html = await fetchData(new URL(nextURL));
     const doc = parser.parseFromString(html, "text/html")!;
 
@@ -95,7 +90,6 @@ async function scrapeDetails(items: SummaryItem[]) {
   const result: DetailedItem[] = [];
 
   for (const item of items) {
-    print(`loading... ${item.url}`);
     if (!isCached(new URL(item.url))) {
       await delay(5, 10);
     }

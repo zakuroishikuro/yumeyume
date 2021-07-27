@@ -4,15 +4,23 @@ const SLEEP_MIN_SEC = 4;
 const SLEEP_MAX_SEC = 12;
 const CACHE_DIR = "./_cache";
 
-type CacheOptions = { cacheDir?: string; forceRefresh?: boolean };
+type CacheOptions = {
+  cacheDir?: string;
+  forceRefresh?: boolean;
+  log?: boolean;
+};
 
 /** cache付きのfetch (文字列だけ) */
 export async function fetchData(
   url: URL,
   opts: CacheOptions = {},
 ) {
-  const { cacheDir = CACHE_DIR, forceRefresh } = opts;
+  const { cacheDir = CACHE_DIR, forceRefresh, log = true } = opts;
   const filePath = getCacheFilePath(url, cacheDir);
+
+  if (log) {
+    console.log(`[${url.hostname}] loading... ${url}`);
+  }
 
   if (forceRefresh) {
     const cachePath = getCacheFilePath(url, cacheDir);

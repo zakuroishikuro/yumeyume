@@ -1,12 +1,8 @@
-import { delay, DOMParser, HTMLDocument } from "../../deps.ts";
-import { fetchData, isCached } from "../fetch_data.ts";
+import { DOMParser, HTMLDocument } from "../../deps.ts";
+import { fetchData } from "../fetch_data.ts";
 
-const SITE_NAME = "Tech Village";
+//const SITE_NAME = "Tech Village";
 const SITE_URL = "https://cc.cqpub.co.jp";
-
-function print(message: string) {
-  console.log(`[${SITE_NAME}] ${message}`);
-}
 
 function getSummaryURL(page = 1) {
   // このサイトはページ1ページ目が0なので他と統一するため-1しとくï
@@ -59,7 +55,6 @@ async function scrape(forceRefresh = false) {
   let nextUrl: string | undefined = getSummaryURL();
 
   while (nextUrl) {
-    print(`loading... ${nextUrl}`);
     const text = await fetchData(new URL(nextUrl), { forceRefresh });
     const doc = parser.parseFromString(text, "text/html")!;
     const items = getSummaryItems(doc);
@@ -78,13 +73,7 @@ async function scrapeDetails(items: SummaryItem[]) {
   // flatMapにしたかったけど、async渡すと一気にダウンロードしちゃう
   for (const item of items) {
     const url = new URL(item.url);
-    print(`loading... ${url}`);
     const text = await fetchData(url);
-
-    // キャッシュされてなかった場合(新規にダウンロードする場合)は少し待つ
-    if (!isCached(url)) {
-      await delay(5, 10);
-    }
 
     const doc = parser.parseFromString(text, "text/html")!;
 

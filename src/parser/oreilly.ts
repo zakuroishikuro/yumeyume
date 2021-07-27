@@ -1,12 +1,9 @@
-import { delay, DOMParser, HTMLDocument, normalize } from "../../deps.ts";
-import { fetchData, isCached } from "../fetch_data.ts";
+import { DOMParser, HTMLDocument, normalize } from "../../deps.ts";
+import { fetchData } from "../fetch_data.ts";
+import { getItemProps } from "../utils.ts";
 
-const SITE_NAME = "オライリー";
+//const SITE_NAME = "オライリー";
 const SITE_URL = new URL("https://www.oreilly.co.jp/ebook");
-
-function print(message: string) {
-  console.log(`[${SITE_NAME}] ${message}`);
-}
 
 type JsonItem = {
   title: string;
@@ -50,7 +47,6 @@ function getURLs(doc: HTMLDocument) {
 }
 
 async function scrape() {
-  print(`loading... ${SITE_URL}`);
   const html = await fetchData(SITE_URL);
   const parser = new DOMParser();
   const document = parser.parseFromString(html, "text/html")!;
@@ -62,26 +58,18 @@ async function scrapeDetails(urls: string[]) {
 
   const items: DetailedItem[] = [];
   for (const url of urls) {
-    print(`loading... ${url}`);
-
     const jsonURL = new URL(`${url}biblio.json`);
-    if (!isCached(jsonURL)) {
-      delay(1, 3);
-    }
     const jsonStr = await fetchData(jsonURL);
     const json: JsonItem = JSON.parse(jsonStr);
 
     const pageURL = new URL(url);
-    if (!isCached(pageURL)) {
-      delay(4, 8);
-    }
     const html = await fetchData(pageURL);
     const doc = parser.parseFromString(html, "text/html")!;
+    const itemprops = getItemProps(doc.body);
 
     const item = {
       ...json,
-      description: doc.querySelector("[itemprop=description]")!.textContent
-        .trim(),
+      description: itemprops.description,
       tableOfContents: doc.getElementById("toc")!.querySelector("pre")!
         .textContent.trim(),
     };
