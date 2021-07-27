@@ -11,6 +11,7 @@
         "run",
         "--inspect-brk",
         "--allow-all",
+        "--unstable",
         "${file}"
       ],
       "attachSimplePort": 9229
